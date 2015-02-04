@@ -1,0 +1,13 @@
+.ui-field-contain>label~[class*=ui-], .ui-field-contain .ui-controlgroup-controls{
+    width: 100%!important;
+}
+.rooms{
+    float:left;
+    margin-top:20px!important;
+}
+.clearfix{
+    clear:both;
+}
+.margtbot10{
+    margin-bottom: 10px;
+}

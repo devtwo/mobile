@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="jquery-mobile/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" href="css/jqm-datebox.min.css">
+        <script src="js/jquery.js"></script>
+        <script src="jquery-mobile/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript" src="js/jqm-datebox.core.min.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile.date.lang.id.js"></script>
+        <script type="text/javascript" src="js/jqm-datebox.mode.calbox.min.js"></script>
+        <script>
+            var url = "http://www.seribusatumalam.com";
+            
+            $( document ).on( "pageinit", "#page1", function() {
+                $( "#autocomplete" ).on( "listviewbeforefilter", function ( e, data ) {
+                    var $ul = $( this ),$input = $( data.input ),value = $input.val(),html = "";
+                    $ul.html( "" );
+                    if ( value && value.length > 2 ) {
+                        $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                        $ul.listview( "refresh" );
+                        $.ajax({
+                            url: url + "/mobile.php/ajax/searchTerm?term="+value,
+                            dataType: "json",
+                            crossDomain: true,
+                            success:function(msg){ 
+                                var arr = ["kota"];
+                                //var data = "";
+                                
+                                for(var i = 0; i < msg.length; i++){
+                                    if (msg[i].category == 'City') {
+                                        if (arr.indexOf(msg[i].category) <= 0) {
+                                            html += "<li style=\"color:#005599;display: inherit!important\">" + msg[i].category + "</li>";
+                                            arr.push(msg[i].category);  
+                                        }
+                                        //data = url + "/mobile.php/hotels/" + msg[i].id + "/" + msg[i].slug + ".html";
+                                    }
+                                    if (msg[i].category == 'Daerah') {
+                                        if (arr.indexOf(msg[i].category) <= 0) {
+                                            html += "<li style=\"color:#005599;display: inherit!important\">" + msg[i].category + "</li>";
+                                            arr.push(msg[i].category);  
+                                        }
+                                        //data = url + "/mobile.php/hotels/" + msg[i].city_id + "/" + msg[i].id + "/" + msg[i].slug + ".html";
+                                    }
+                                    if (msg[i].category == 'Hotel') {
+                                        if (arr.indexOf(msg[i].category) <= 0) {
+                                            html += "<li style=\"color:#005599;display: inherit!important\">" + msg[i].category + "</li>";
+                                            arr.push(msg[i].category);
+                                        }
+                                        //data = url + "/mobile.php/hotel/" + msg[i].id + "/" + msg[i].city_slug + "/" + msg[i].slug + ".html";
+                                    }
+                                    
+                                    html += "<li id=\"option"+i+"\" onClick=\"addUrl("+i+");\" dataId=\""+msg[i].id+"\" dataLabel=\""+msg[i].label+"\"><a>" + msg[i].label + "</a></li>";
+                                }
+                                $ul.html( html );
+                                $ul.listview( "refresh" );
+                                $ul.trigger( "updatelayout");
+                            }
+                        });
+                    }
+                });
+            });
+            
+            function addUrl(num){
+                var dataLabel = $('#option'+num).attr('dataLabel');
+                var dataId = $('#option'+num).attr('dataId');
+                
+                $('#hotel_name').val(dataLabel);
+                $('#kota_id').val(dataId);
+                
+                $("#autocomplete").html("");
+            }
+            
+            function update_rooms(){
+                var total = $('#total_rooms').val();
+                var html = "";
+                
+                for(var i = 1; i <= total; i++){
+                    html += '<label>Room ' + i + '</label>';
+                    html += '<div class="clearfix"></div>';
+                    html += '<span style="margin-right: 13px;">Dewasa</span><span style="margin-right: 29px;">Anak</span><span style="margin-right: 22px;">Age 1</span><span>Age 2</span>';
+                    html += '<fieldset data-type="horizontal" data-role="controlgroup" class="ui-controlgroup ui-controlgroup-horizontal ui-corner-all">';
+                    html += '<div class="ui-controlgroup-controls">';
+                    
+                    html += '<div class="ui-select">';
+                    html += '<div id="total_adult_' + i + '-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow ui-first-child">';
+                    html += '<span>1</span>';
+                    html += '<select onChange="update_select(this.name)" name="total_adult_' + i + '" id="total_adult_' + i + '">';
+                            for(var j = 1; j <= 3; j++){
+                                html +='<option value="' + j + '">' + j + '</option>';
+                            }
+                    html += '</select>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    html += '<div class="ui-select">';
+                    html += '<div id="total_children_' + i + '-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">';
+                    html += '<span>0</span>';
+                    html += '<select onChange="update_child(' + i + ')" name="total_children_' + i + '" id="total_children_' + i + '">';
+                            for(var j = 0; j <= 2; j++){
+                                html +='<option value="' + j + '">' + j + '</option>';
+                            }
+                    html += '</select>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    html += '<div class="ui-select">';
+                    html += '<div id="child_age1_' + i + '-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow ui-state-disabled" aria-disabled="true">';
+                    html += '<span>1</span>';
+                    html += '<select onChange="update_select(this.name)" name="child_age1_' + i + '" id="child_age1_' + i + '" disabled class="mobile-selectmenu-disabled">';
+                            for(var j = 1; j <= 18; j++){
+                                html +='<option value="' + j + '">' + j + '</option>';
+                            }
+                    html += '</select>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    html += '<div class="ui-select">';
+                    html += '<div id="child_age2_' + i + '-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow ui-last-child ui-state-disabled" aria-disabled="true">';
+                    html += '<span>1</span>';
+                    html += '<select onChange="update_select(this.name)" name="child_age2_' + i + '" id="child_age2_' + i + '" disabled class="mobile-selectmenu-disabled">';
+                            for(var j = 1; j <= 18; j++){
+                                html +='<option value="' + j + '">' + j + '</option>';
+                            }
+                    html += '</select>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    html += '</div>';
+                    html += '</fieldset>';
+                }
+                
+                $('#rooms').html(html);
+            }
+            
+            function update_child(num) {
+                var total = $('#total_children_' + num).val();
+                $('#total_children_' + num + '-button span').text(total);
+                
+                if (total == 1) {
+                    $('#child_age1_' + num).prop('disabled', false);
+                    $('#child_age1_' + num).removeClass('mobile-selectmenu-disabled');
+                    $('#child_age1_' + num + '-button').attr('aria-disabled','false');
+                    $('#child_age1_' + num + '-button').removeClass('ui-state-disabled');
+                    $('#child_age2_' + num).prop('disabled', 'disabled');
+                    $('#child_age2_' + num).addClass('mobile-selectmenu-disabled');
+                    $('#child_age2_' + num + '-button').attr('aria-disabled','true');
+                    $('#child_age2_' + num + '-button').addClass('ui-state-disabled');
+                }else if (total == 2) {
+                    $('#child_age1_' + num).prop('disabled', false);
+                    $('#child_age1_' + num).removeClass('mobile-selectmenu-disabled');
+                    $('#child_age1_' + num + '-button').attr('aria-disabled','false');
+                    $('#child_age1_' + num + '-button').removeClass('ui-state-disabled');
+                    $('#child_age2_' + num).prop('disabled', false);
+                    $('#child_age2_' + num).removeClass('mobile-selectmenu-disabled');
+                    $('#child_age2_' + num + '-button').attr('aria-disabled','false');
+                    $('#child_age2_' + num + '-button').removeClass('ui-state-disabled');
+                }else{
+                    $('#child_age1_' + num).prop('disabled', 'disabled');
+                    $('#child_age1_' + num).addClass('mobile-selectmenu-disabled');
+                    $('#child_age1_' + num + '-button').attr('aria-disabled','true');
+                    $('#child_age1_' + num + '-button').addClass('ui-state-disabled');
+                    $('#child_age2_' + num).prop('disabled', 'disabled');
+                    $('#child_age2_' + num).addClass('mobile-selectmenu-disabled');
+                    $('#child_age2_' + num + '-button').attr('aria-disabled','true');
+                    $('#child_age2_' + num + '-button').addClass('ui-state-disabled');
+                }
+            }
+            
+            function update_select(name) {
+                var value = $('#' + name).val();
+                $('#'+name+'-button span').text(value);
+            }
+        </script>
+    </head>
+    <body>
+        <div data-role="page" id="page1">
+            <div data-role="header">
+                <a href="#" data-role="button" data-icon="home">Awal</a>
+                <h1>Page Pertama lho</h1>
+                <a href="#" data-role="button" data-icon="search">pencarian</a>
+            </div>
+            <div data-role="content" id="data">
+                <form method="post" id="mainForm" action="">
+                    <div data-role="fieldcontain">
+                        <input type="hidden" name="kota_id" value="" id="kota_id"/>
+                        <span><b>Pax Passport</b></span>
+                        <input type="text" name="pax_passport" value="76" />
+                        <span><b>Masukkan Kota, Daerah, atau Nama hotel</b></span>
+                        <input autocomplete="off" id="hotel_name" name="hotel_name" data-type="search">
+                        <ul data-input="#hotel_name" id="autocomplete" data-role="listview" data-inset="true" data-filter="true"></ul>
+                        <span><b>Check-In</b></span>
+                        <input name="date_checkin" type="text" data-role="datebox" data-options='{"mode":"calbox"}'>
+                        <span><b>Check-Out</b></span>
+                        <input name="date_checkout" type="text" data-role="datebox" data-options='{"mode":"calbox"}'>
+                        <span><b>Rooms</b></span>
+                        <select id="total_rooms" name="total_rooms" onchange="update_rooms()">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                        <div id="rooms" data-role="fieldcontain" class="rooms">
+                            <label>Rooms 1</label>
+                            <div class='clearfix'></div>
+                            <span style="margin-right: 13px;">Dewasa</span><span style="margin-right: 29px;">Anak</span><span style="margin-right: 22px;">Age 1</span><span>Age 2</span>
+                            <fieldset data-type="horizontal" data-role="controlgroup">
+                                <select name="total_adult_1" id="total_adult_1">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                </select>
+                                <select onChange="update_child(1)" name="total_children_1" id="total_children_1">
+                                    <option>0</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                </select>
+                                <select name="child_age1_1" id="child_age1_1" disabled>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                    <option>10</option>
+                                    <option>11</option>
+                                    <option>12</option>
+                                    <option>13</option>
+                                    <option>14</option>
+                                    <option>15</option>
+                                    <option>16</option>
+                                    <option>17</option>
+                                    <option>18</option>
+                                </select>
+                                <select name="child_age2_1" id="child_age2_1" disabled>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                    <option>10</option>
+                                    <option>11</option>
+                                    <option>12</option>
+                                    <option>13</option>
+                                    <option>14</option>
+                                    <option>15</option>
+                                    <option>16</option>
+                                    <option>17</option>
+                                    <option>18</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <input onClick="send_ajax()" type="button" data-inline="true" value="kirim" />
+                </form>
+                
+            </div>
+            <div data-role="content" id="dataAjax">
+                <ul data-role="listview">
+                    <li><a href="#">tes</a></li>
+                    <li><a href="#">tes</a></li>
+                    <li><a href="#">tes</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <script>
+            function send_ajax(){
+                var baseurl = '/mobile.php/';
+                var dataPost = $('#mainForm').serializeObject();
+            
+                $.ajax({
+                  type: 'POST',
+                  //async: false,
+                  url: url + baseurl + 'ajax/indexAndroid',
+                  data: JSON.stringify(dataPost),
+                  cache: false,
+                  beforeSend: function(img){
+                    $('#dataAjax').html('<div style="text-align: center"><img src="images/loading1.gif" /></div>');
+                  },
+                  success:function(msg){
+                    $('#dataAjax').html(msg);
+                  }
+                });
+            }
+            
+            jQuery.fn.serializeObject = function() {
+                var arrayData, objectData;
+                arrayData = this.serializeArray();
+                objectData = {};
+              
+                $.each(arrayData, function() {
+                  var value;
+              
+                  if (this.value != null) {
+                    value = this.value;
+                  } else {
+                    value = '';
+                  }
+              
+                  if (objectData[this.name] != null) {
+                    if (!objectData[this.name].push) {
+                      objectData[this.name] = [objectData[this.name]];
+                    }
+              
+                    objectData[this.name].push(value);
+                  } else {
+                    objectData[this.name] = value;
+                  }
+                });
+            
+                return objectData;
+          };
+        </script>
+    </body>
+</html>
